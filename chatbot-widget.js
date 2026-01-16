@@ -633,7 +633,7 @@ function createChatbotWidget() {
         <div id="chatbot-settings-modal" class="chatbot-modal">
             <div class="chatbot-modal-content">
                 <div class="chatbot-modal-header">
-                    <h3>⚙️ Cài đặt API</h3>
+                    <h3>⚙️ Cài đặt Chatbot</h3>
                     <button onclick="closeChatbotSettings()" class="chatbot-icon-btn">
                         <i class="fas fa-times"></i>
                     </button>
@@ -657,7 +657,30 @@ function createChatbotWidget() {
                             <option value="gemini">Google Gemini (Thông minh 🧠)</option>
                         </select>
                         <small style="color: #666; display: block; margin-top: 5px;">
-                            ✅ API keys đã được tích hợp sẵn - Không cần nhập!
+                            💡 API key mặc định đã được tích hợp sẵn. Bạn có thể dùng API key của riêng mình nếu muốn!
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label>🔑 API Key (Tùy chọn):</label>
+                        <div style="position: relative;">
+                            <input
+                                type="password"
+                                id="chatbot-custom-api-key"
+                                placeholder="Nhập API key của bạn (hoặc để trống dùng key mặc định)"
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;"
+                            />
+                            <button 
+                                onclick="toggleApiKeyVisibility()" 
+                                id="chatbot-toggle-key-btn"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;"
+                                title="Hiện/Ẩn API key"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            ✅ Để trống = Dùng API key mặc định<br>
+                            🔒 API key được lưu cục bộ trên trình duyệt của bạn
                         </small>
                     </div>
                     <button onclick="saveChatbotSettings()" class="chatbot-save-btn">
@@ -668,7 +691,12 @@ function createChatbotWidget() {
                         ✅ Phản hồi cực nhanh (1-2 giây)<br>
                         ✅ Model: LLaMA 3.3 70B<br>
                         ✅ Phù hợp cho câu trả lời nhanh<br>
-                        ✅ API đã được tích hợp sẵn<br><br>
+                        ✅ Miễn phí 14,400 requests/ngày<br><br>
+                        <strong>📖 Cách lấy API key:</strong><br>
+                        1️⃣ Truy cập <a href="https://console.groq.com" target="_blank">console.groq.com</a><br>
+                        2️⃣ Đăng ký/Đăng nhập (miễn phí)<br>
+                        3️⃣ Vào "API Keys" → "Create API Key"<br>
+                        4️⃣ Copy key và dán vào ô trên<br><br>
                         <strong>💡 Mẹo:</strong> Dùng Groq cho tốc độ, Gemini cho câu trả lời phức tạp!
                     </div>
                 </div>
@@ -706,8 +734,13 @@ function loadSettings() {
         try {
             const savedConfig = JSON.parse(saved);
             // Cho phép người dùng thay đổi provider
-            if (savedConfig.provider && API_KEYS[savedConfig.provider]) {
+            if (savedConfig.provider) {
                 apiConfig.provider = savedConfig.provider;
+            }
+            // Ưu tiên API key người dùng nhập, fallback về key mặc định
+            if (savedConfig.customApiKey && savedConfig.customApiKey.trim() !== '') {
+                apiConfig.apiKey = savedConfig.customApiKey;
+            } else if (API_KEYS[savedConfig.provider]) {
                 apiConfig.apiKey = API_KEYS[savedConfig.provider];
             }
             // Load ngôn ngữ đã lưu
@@ -722,7 +755,7 @@ function loadSettings() {
             console.error('Error loading settings:', e);
         }
     }
-    // Luôn đảm bảo có API key
+    // Luôn đảm bảo có API key (fallback về key mặc định)
     if (!apiConfig.apiKey && API_KEYS[apiConfig.provider]) {
         apiConfig.apiKey = API_KEYS[apiConfig.provider];
     }
@@ -768,10 +801,25 @@ function openChatbotSettings() {
     const modal = document.getElementById('chatbot-settings-modal');
     const provider = document.getElementById('chatbot-api-provider');
     const language = document.getElementById('chatbot-language');
+    const customApiKey = document.getElementById('chatbot-custom-api-key');
 
     if (modal && provider && language) {
         provider.value = apiConfig.provider;
         language.value = currentLanguage;
+        
+        // Load custom API key nếu có
+        const saved = localStorage.getItem('chatbot_config');
+        if (saved) {
+            try {
+                const savedConfig = JSON.parse(saved);
+                if (customApiKey && savedConfig.customApiKey) {
+                    customApiKey.value = savedConfig.customApiKey;
+                }
+            } catch (e) {
+                console.error('Error loading custom API key:', e);
+            }
+        }
+        
         updateChatbotApiInfo();
         modal.classList.add('show');
     }
@@ -795,13 +843,25 @@ function updateChatbotApiInfo() {
                ✅ Phản hồi cực nhanh (1-2 giây)<br>
                ✅ Model: LLaMA 3.3 70B<br>
                ✅ Phù hợp cho câu trả lời nhanh<br>
-               ✅ API đã được tích hợp sẵn<br><br>
+               ✅ Miễn phí 14,400 requests/ngày<br><br>
+               <strong>📖 Cách lấy API key:</strong><br>
+               1️⃣ Truy cập <a href="https://console.groq.com" target="_blank" style="color: #4CAF50;">console.groq.com</a><br>
+               2️⃣ Đăng ký/Đăng nhập (miễn phí)<br>
+               3️⃣ Vào "API Keys" → "Create API Key"<br>
+               4️⃣ Đặt tên cho key và nhấn "Submit"<br>
+               5️⃣ Copy key và dán vào ô trên ☝️<br><br>
                <strong>💡 Mẹo:</strong> Dùng Groq cho tốc độ, Gemini cho câu trả lời phức tạp!`,
         gemini: `<strong>🌟 Google Gemini AI - Thông minh!</strong><br><br>
                  ✅ Model: Gemini 2.5 Flash<br>
                  ✅ Phản hồi chi tiết và sâu sắc<br>
                  ✅ Phù hợp cho câu hỏi phức tạp<br>
-                 ✅ API đã được tích hợp sẵn<br><br>
+                 ✅ Miễn phí 1,500 requests/ngày<br><br>
+                 <strong>📖 Cách lấy API key:</strong><br>
+                 1️⃣ Truy cập <a href="https://aistudio.google.com/apikey" target="_blank" style="color: #4CAF50;">aistudio.google.com/apikey</a><br>
+                 2️⃣ Đăng nhập bằng Google Account<br>
+                 3️⃣ Nhấn "Create API Key"<br>
+                 4️⃣ Chọn project hoặc tạo mới<br>
+                 5️⃣ Copy key và dán vào ô trên ☝️<br><br>
                  <strong>💡 Mẹo:</strong> Dùng Gemini khi cần phân tích sâu, Groq khi cần trả lời nhanh!`
     };
 
@@ -811,6 +871,7 @@ function updateChatbotApiInfo() {
 function saveChatbotSettings() {
     const provider = document.getElementById('chatbot-api-provider')?.value;
     const language = document.getElementById('chatbot-language')?.value;
+    const customApiKey = document.getElementById('chatbot-custom-api-key')?.value.trim();
 
     // Cập nhật ngôn ngữ
     if (language) {
@@ -820,16 +881,23 @@ function saveChatbotSettings() {
         }
     }
 
-    // Cập nhật provider và sử dụng API key đã tích hợp sẵn
-    if (provider && API_KEYS[provider]) {
+    // Cập nhật provider
+    if (provider) {
         apiConfig.provider = provider;
+    }
+
+    // Ưu tiên custom API key, nếu không có thì dùng key mặc định
+    if (customApiKey && customApiKey !== '') {
+        apiConfig.apiKey = customApiKey;
+    } else if (API_KEYS[provider]) {
         apiConfig.apiKey = API_KEYS[provider];
     }
 
-    // Lưu cài đặt
+    // Lưu cài đặt (bao gồm cả custom API key)
     localStorage.setItem('chatbot_config', JSON.stringify({ 
         provider: apiConfig.provider, 
-        language: currentLanguage 
+        language: currentLanguage,
+        customApiKey: customApiKey // Lưu custom API key
     }));
 
     updateChatbotStatus();
@@ -838,13 +906,33 @@ function saveChatbotSettings() {
     // Thông báo theo ngôn ngữ đã chọn
     let successMessage;
     const providerName = provider === 'groq' ? 'Groq' : provider === 'gemini' ? 'Gemini' : 'OpenAI';
+    const apiKeySource = customApiKey && customApiKey !== '' ? 'API key của bạn' : 'API key mặc định';
     
     if (currentLanguage === 'vi-VN') {
-        successMessage = `✅ Đã lưu cài đặt thành công!\n\n🤖 AI Provider: ${providerName}\n🌍 Ngôn ngữ: Tiếng Việt\n🎤 Nhận diện giọng nói: Tiếng Việt\n🔊 Đọc văn bản: Tiếng Việt\n\nBây giờ bạn có thể hỏi tôi bất cứ điều gì!`;
+        successMessage = `✅ Đã lưu cài đặt thành công!\n\n🤖 AI Provider: ${providerName}\n🔑 Đang dùng: ${apiKeySource}\n🌍 Ngôn ngữ: Tiếng Việt\n🎤 Nhận diện giọng nói: Tiếng Việt\n🔊 Đọc văn bản: Tiếng Việt\n\nBây giờ bạn có thể hỏi tôi bất cứ điều gì!`;
     } else {
-        successMessage = `✅ Settings saved successfully!\n\n🤖 AI Provider: ${providerName}\n🌍 Language: English\n🎤 Speech recognition: English\n🔊 Text-to-speech: English\n\nYou can ask me anything now!`;
+        const apiKeySrc = customApiKey && customApiKey !== '' ? 'Your API key' : 'Default API key';
+        successMessage = `✅ Settings saved successfully!\n\n🤖 AI Provider: ${providerName}\n🔑 Using: ${apiKeySrc}\n🌍 Language: English\n🎤 Speech recognition: English\n🔊 Text-to-speech: English\n\nYou can ask me anything now!`;
     }
     addChatbotMessage(successMessage, 'bot');
+}
+
+// Toggle hiển thị/ẩn API key
+function toggleApiKeyVisibility() {
+    const apiKeyInput = document.getElementById('chatbot-custom-api-key');
+    const toggleBtn = document.getElementById('chatbot-toggle-key-btn');
+    
+    if (apiKeyInput && toggleBtn) {
+        if (apiKeyInput.type === 'password') {
+            apiKeyInput.type = 'text';
+            toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            toggleBtn.title = 'Ẩn API key';
+        } else {
+            apiKeyInput.type = 'password';
+            toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+            toggleBtn.title = 'Hiện API key';
+        }
+    }
 }
 
 function handleChatbotKeyPress(event) {
