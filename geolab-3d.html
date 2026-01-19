@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoLab 3D - Phòng Thí Nghiệm Địa Lí Ảo</title>
+    <title>GeoLab 3D - Trái Đất</title>
     <style>
         * {
             margin: 0;
@@ -272,11 +272,52 @@
         #control-panel::-webkit-scrollbar-thumb:hover {
             background: rgba(79, 195, 247, 0.8);
         }
+
+        /* Nút quay về trang chủ */
+        .home-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(79, 195, 247, 0.9);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.4);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .home-button:hover {
+            background: rgba(79, 195, 247, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 195, 247, 0.6);
+            color: #fff;
+        }
+
+        .home-button i {
+            font-size: 16px;
+        }
     </style>
     <!-- Chatbot Widget CSS -->
     <link rel="stylesheet" href="chatbot-widget.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Nút quay về trang chủ -->
+    <a href="index.html" class="home-button">
+        <i class="fas fa-home"></i>
+        <span>Trang chủ</span>
+    </a>
+
     <div id="loading">
         <div class="spinner"></div>
     </div>
