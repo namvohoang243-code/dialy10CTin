@@ -25,6 +25,17 @@ class EarthBackgroundAnimated {
     init() {
         if (this.isInitialized) return;
 
+        // Detect mobile device - disable heavy 3D animation on mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+        
+        if (isMobile) {
+            console.log('📱 Mobile detected - Animated Earth Background disabled for performance');
+            // Create simple static background instead
+            this.createStaticMobileBackground();
+            this.isInitialized = true;
+            return;
+        }
+
         this.createContainer();
         this.setupScene();
         this.setupCamera();
@@ -43,6 +54,18 @@ class EarthBackgroundAnimated {
 
         this.isInitialized = true;
         console.log('🌍🌙 Animated Earth Background with Day/Night initialized');
+    }
+
+    createStaticMobileBackground() {
+        // Create a simple static gradient background for mobile
+        const style = document.createElement('style');
+        style.textContent = `
+            body {
+                background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1429 100%) !important;
+                background-attachment: fixed !important;
+            }
+        `;
+        document.head.appendChild(style);
     }
 
     createContainer() {

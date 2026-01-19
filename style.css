@@ -3365,11 +3365,28 @@ img {
     .carousel-track {
         /* Animation disabled for performance */
     }
+    
+    /* Disable backdrop-filter on mobile for better performance */
+    * {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
 }
 
 /* =============================
    LOW-END DEVICES OPTIMIZATION
    ============================= */
+
+/* Tablet optimization */
+@media (max-width: 768px) and (min-width: 577px) {
+    /* Reduce backdrop-filter blur on tablets */
+    .dropdown-menu,
+    .navbar,
+    .site-navbar {
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+    }
+}
 
 @media (max-width: 768px) and (max-device-pixel-ratio: 1.5) {
     /* Giảm quality cho thiết bị yếu */
@@ -3881,6 +3898,26 @@ img {
 
 /* Mobile responsive */
 @media (max-width: 768px) {
+    /* Optimize hero background for mobile */
+    .hero {
+        background:
+            linear-gradient(rgba(0, 8, 20, 0.7), rgba(0, 8, 20, 0.8)),
+            url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=60') center / cover no-repeat;
+        background-attachment: scroll; /* Remove fixed for better mobile performance */
+        min-height: 100vh;
+        height: auto;
+    }
+    
+    /* Disable heavy effects on mobile */
+    .hero::before,
+    .hero::after {
+        display: none;
+    }
+    
+    #particle-canvas {
+        display: none !important;
+    }
+    
     .hero-container {
         padding: 0 30px;
     }
@@ -3888,24 +3925,36 @@ img {
     .hero-grade {
         font-size: 0.95rem;
         letter-spacing: 2px;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
     }
     
     .hero-title {
         font-size: clamp(2rem, 6vw, 3rem);
+        filter: drop-shadow(0 2px 10px rgba(58, 189, 216, 0.6));
     }
     
     .hero-desc {
         font-size: 1rem;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
     }
 }
 
 @media (max-width: 576px) {
+    /* Further optimize for small mobile devices */
+    .hero {
+        background:
+            linear-gradient(rgba(0, 8, 20, 0.75), rgba(0, 8, 20, 0.85)),
+            url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=50') center / cover no-repeat;
+        background-attachment: scroll;
+    }
+    
     .hero-container {
         padding: 0 20px;
     }
     
     .hero-title {
         font-size: clamp(1.5rem, 5vw, 2rem);
+        white-space: normal; /* Allow wrapping on very small screens */
     }
     
     .hero-desc {

@@ -850,9 +850,24 @@ body::before {
 
 /* Mobile nhỏ */
 @media (max-width: 576px) {
+    /* Tối ưu performance - Tắt backdrop-filter trên mobile */
+    * {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    
+    /* Tối ưu background cho mobile */
+    body {
+        background: 
+            linear-gradient(rgba(0, 8, 20, 0.75), rgba(0, 8, 20, 0.85)),
+            url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=60') center / cover no-repeat !important;
+        background-attachment: scroll !important;
+    }
+    
     /* Navbar compact - ĐẢM BẢO NÚT VÀ CHỮ CÙNG HÀNG */
     .site-navbar {
         padding: 6px 0;
+        background: rgba(26, 35, 50, 0.95) !important;
     }
 
     .site-navbar .container {

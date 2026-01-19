@@ -25,6 +25,9 @@ window.addEventListener('load', () => {
 // ===========================
 (function(){
   try {
+    // Detect if mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    
     // 1) Reveal on scroll (IntersectionObserver)
     const revealEls = Array.from(document.querySelectorAll('.reveal'));
     if ('IntersectionObserver' in window && revealEls.length) {
@@ -41,7 +44,13 @@ window.addEventListener('load', () => {
       revealEls.forEach(el=>el.classList.add('is-visible'));
     }
 
-    // 2) 3D Tilt on hover for cards
+    // Skip heavy effects on mobile
+    if (isMobile) {
+      console.log('📱 Mobile detected - Skipping heavy animations');
+      return;
+    }
+
+    // 2) 3D Tilt on hover for cards (Desktop only)
     const tiltEls = Array.from(document.querySelectorAll('.tilt-3d'));
     tiltEls.forEach(el => {
       let rect;
@@ -57,7 +66,7 @@ window.addEventListener('load', () => {
       el.addEventListener('mouseleave', onLeave);
     });
 
-    // 3) Magnetic buttons (attract inner content to cursor)
+    // 3) Magnetic buttons (Desktop only)
     const magnets = Array.from(document.querySelectorAll('.magnetic'));
     magnets.forEach(m => {
       const inner = m.querySelector('.magnet-inner') || m.firstElementChild || m;
@@ -72,7 +81,7 @@ window.addEventListener('load', () => {
       });
     });
 
-    // 4) Cursor glow (follow cursor with requestAnimationFrame)
+    // 4) Cursor glow (Desktop only)
     const glow = document.createElement('div');
     glow.className = 'cursor-glow';
     document.body.appendChild(glow);
@@ -175,6 +184,19 @@ function initCityLightsCanvas() {
 // ===========================
 function initParticles() {
     try {
+        // Detect mobile device
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+        
+        // Disable particles on mobile for better performance
+        if (isMobile) {
+            console.log('📱 Mobile detected: particles disabled for performance');
+            const canvasEl = document.getElementById('particle-canvas');
+            if (canvasEl) {
+                canvasEl.remove();
+            }
+            return;
+        }
+        
         // Respect reduced motion
         if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             console.log('⚠️ Reduced motion: particles disabled');
@@ -194,7 +216,8 @@ function initParticles() {
         canvas.height = window.innerHeight;
 
         const particles = [];
-        const particleCount = 120; // more tiny lights
+        // Reduce particle count based on screen size
+        const particleCount = window.innerWidth > 1920 ? 120 : window.innerWidth > 1200 ? 80 : 60;
 
         class Particle {
             constructor() {
